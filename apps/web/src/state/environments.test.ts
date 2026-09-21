@@ -1,7 +1,8 @@
 import { EnvironmentId } from "@t3tools/contracts";
 import { describe, expect, it } from "vite-plus/test";
 
-import { environmentScopeLabel } from "./environments";
+import { makeEnvironmentPresentation } from "~/test/environmentPresentation";
+import { buildSidebarEnvironmentScopeItems, environmentScopeLabel } from "./environments";
 
 const first = {
   environmentId: EnvironmentId.make("first"),
@@ -40,5 +41,30 @@ describe("environmentScopeLabel", () => {
     expect(environmentScopeLabel(first, [first, { ...second, label: "Production" }])).toBe(
       "Development",
     );
+  });
+});
+
+describe("buildSidebarEnvironmentScopeItems", () => {
+  it("offers only switched-on entries, in catalog order", () => {
+    const laptop = makeEnvironmentPresentation({ id: "laptop" });
+    const desk = makeEnvironmentPresentation({ id: "desk" });
+
+    expect(
+      buildSidebarEnvironmentScopeItems([
+        laptop,
+        makeEnvironmentPresentation({ id: "parked", enabled: false }),
+        desk,
+      ]),
+    ).toEqual([laptop, desk]);
+  });
+
+  it("offers nothing below two enabled environments, so a single-machine user sees no control", () => {
+    expect(
+      buildSidebarEnvironmentScopeItems([
+        makeEnvironmentPresentation({ id: "laptop" }),
+        makeEnvironmentPresentation({ id: "parked", enabled: false }),
+      ]),
+    ).toEqual([]);
+    expect(buildSidebarEnvironmentScopeItems([])).toEqual([]);
   });
 });

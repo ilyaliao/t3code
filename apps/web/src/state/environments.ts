@@ -41,6 +41,19 @@ export function environmentScopeLabel(
     : environment.label;
 }
 
+/**
+ * Environments the sidebar can scope to: enabled catalog entries in catalog
+ * order. Switched-off entries contribute no projects or threads, so they are
+ * not choices. Fewer than two enabled environments is no choice either, so
+ * the result is empty and the header renders no control.
+ */
+export function buildSidebarEnvironmentScopeItems(
+  environments: readonly EnvironmentPresentation[],
+): readonly EnvironmentPresentation[] {
+  const enabled = environments.filter((environment) => environment.entry.enabled);
+  return enabled.length < 2 ? [] : enabled;
+}
+
 function projectEnvironmentPresentation(
   environmentId: EnvironmentId,
   presentation: BaseEnvironmentPresentation,
