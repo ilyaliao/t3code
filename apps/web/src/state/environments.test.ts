@@ -36,6 +36,16 @@ describe("environmentScopeLabel", () => {
     ).toEqual(["Development · first", "Development · second"]);
   });
 
+  it("still tells apart two environments that share both name and address", () => {
+    const twin = { ...second, displayUrl: first.displayUrl };
+    const environments = [first, twin];
+    const labels = environments.map((environment) =>
+      environmentScopeLabel(environment, environments),
+    );
+    expect(new Set(labels).size).toBe(2);
+    expect(labels[0]).toContain("https://first.example.com");
+  });
+
   it("keeps unique names compact and removes disambiguation after a rename", () => {
     expect(environmentScopeLabel(first, [first])).toBe("Development");
     expect(environmentScopeLabel(first, [first, { ...second, label: "Production" }])).toBe(
