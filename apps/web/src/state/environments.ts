@@ -21,6 +21,26 @@ export interface EnvironmentPresentation extends BaseEnvironmentPresentation {
   readonly relayManaged: boolean;
 }
 
+type ScopeEnvironment = Pick<EnvironmentPresentation, "environmentId" | "label" | "displayUrl">;
+
+/**
+ * Menu row label for an environment. Labels are not unique, so a name shared
+ * with another environment gets its address appended; two machines must never
+ * read as one row.
+ */
+export function environmentScopeLabel(
+  environment: ScopeEnvironment,
+  environments: readonly ScopeEnvironment[],
+): string {
+  const duplicate = environments.some(
+    (other) =>
+      other.environmentId !== environment.environmentId && other.label === environment.label,
+  );
+  return duplicate
+    ? `${environment.label} · ${environment.displayUrl ?? environment.environmentId}`
+    : environment.label;
+}
+
 function projectEnvironmentPresentation(
   environmentId: EnvironmentId,
   presentation: BaseEnvironmentPresentation,
