@@ -29,7 +29,7 @@ import { Tooltip, TooltipPopup, TooltipTrigger } from "../ui/tooltip";
 export interface SidebarThreadHeaderProps {
   /** Lands on the search field so a popup can anchor to its width. */
   searchFieldRef?: RefObject<HTMLDivElement | null>;
-  /** Without projects there is nothing to scope, so those controls stay out. */
+  /** Without projects there is nothing to scope by project, so those controls stay out. */
   hasProjects: boolean;
   /** The environment scope menu, first in the group; null when there is nothing to choose. */
   environmentScope: ReactNode;
@@ -129,9 +129,9 @@ export function SidebarThreadHeader({
           hover states, and a background well reads far louder on themed
           palettes than on the base light and dark ones. */}
       <div className="flex shrink-0 items-center">
+        {environmentScope}
         {hasProjects ? (
           <>
-            {environmentScope}
             {projectScope}
             <SidebarHeaderIconButton label="New project" onClick={onNewProject}>
               <FolderPlusIcon />
