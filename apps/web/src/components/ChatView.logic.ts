@@ -18,6 +18,7 @@ import {
   type ThreadId,
   type ThreadLinkedPullRequest,
   type TurnId,
+  type VcsStatusLocalResult,
 } from "@t3tools/contracts";
 import { parseScopedThreadKey } from "@t3tools/client-runtime/environment";
 import { resolveAssetUrl } from "@t3tools/client-runtime/state/assets";
@@ -173,16 +174,21 @@ export function shouldOpenProactiveTurnDiff(input: {
   );
 }
 
+/**
+ * The checkpoint decides whether the turn changed enough. It also absorbs edits made
+ * between turns (pulls, branch switches), so the diff only opens when the working
+ * tree it shows is not empty.
+ */
 export function resolveProactiveTurnDiffAction(input: {
   checkpoint: Pick<TurnDiffSummary, "status" | "files"> | undefined;
-  isGitRepo: boolean | undefined;
+  gitStatus: Pick<VcsStatusLocalResult, "isRepo" | "workingTree"> | null;
 }): "defer" | "ignore" | "open" {
   if (input.checkpoint === undefined || input.checkpoint.status === "missing") return "defer";
-  if (input.isGitRepo === undefined) return "defer";
+  if (input.gitStatus === null) return "defer";
   if (
-    !input.isGitRepo ||
+    !input.gitStatus.isRepo ||
     input.checkpoint.status !== "ready" ||
-    input.checkpoint.files.length === 0
+    input.gitStatus.workingTree.files.length === 0
   ) {
     return "ignore";
   }
