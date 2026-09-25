@@ -62,6 +62,7 @@ import {
   resolveVisibleWorktreeSetup,
   observeProactivePanelUserChoice,
   resolveProactiveTurnDiffAction,
+  gitStatusSinceRefresh,
   resolveThreadMetadataUpdateForNextTurn,
   resolveSendEnvMode,
   threadShellHasStarted,
@@ -463,6 +464,14 @@ describe("proactive panels", () => {
         gitStatus: null,
       }),
     ).toBe("defer");
+  });
+
+  it("treats git status from before the latest refresh request as not loaded", () => {
+    const status = gitStatusWithWorkingTree(["src/app.ts"]);
+
+    expect(gitStatusSinceRefresh({ data: status, dataUpdatedAt: 1_000 }, 2_000)).toBeNull();
+    expect(gitStatusSinceRefresh({ data: null, dataUpdatedAt: null }, 0)).toBeNull();
+    expect(gitStatusSinceRefresh({ data: status, dataUpdatedAt: 3_000 }, 2_000)).toBe(status);
   });
 
   it("opens only when the working tree it shows has changes", () => {

@@ -44,6 +44,7 @@ import { type ComposerImageAttachment, type DraftThreadState } from "../composer
 import * as Schema from "effect/Schema";
 import { appAtomRegistry } from "../rpc/atomRegistry";
 import { environmentThreadDetails } from "../state/threads";
+import type { EnvironmentQueryView } from "../state/query";
 import { stripInlineContextReferences } from "~/lib/composerContextReferences";
 import { filterTerminalContextsWithText, type TerminalContextDraft } from "../lib/terminalContext";
 import type { DraftThreadEnvMode } from "../composerDraftStore";
@@ -172,6 +173,20 @@ export function shouldOpenProactiveTurnDiff(input: {
     (input.previousRunningTurnId === undefined ||
       input.settledTurnId === input.previousRunningTurnId)
   );
+}
+
+/**
+ * Status emitted before the latest refresh request can predate the turn's final edits,
+ * so it counts as not loaded yet. The status stream stays pending while subscribed,
+ * so only the emission time is meaningful.
+ */
+export function gitStatusSinceRefresh<A>(
+  query: Pick<EnvironmentQueryView<A>, "data" | "dataUpdatedAt">,
+  refreshRequestedAt: number,
+): A | null {
+  return query.dataUpdatedAt !== null && query.dataUpdatedAt > refreshRequestedAt
+    ? query.data
+    : null;
 }
 
 /**

@@ -468,6 +468,7 @@ import {
   timelineHasEphemeralPreviewUrls,
   observeProactivePanelUserChoice,
   resolveProactiveTurnDiffAction,
+  gitStatusSinceRefresh,
   resolveThreadMetadataUpdateForNextTurn,
   resolveSendEnvMode,
   revokeBlobPreviewUrl,
@@ -3657,10 +3658,16 @@ export default function ChatView(props: ChatViewProps) {
           input: { cwd: gitStatusCwd },
         }),
   );
+  const gitStatusRefreshRequestedAtRef = useRef(0);
+  const refreshGitStatus = gitStatusQuery.refresh;
+  const refreshGitStatusForMutation = useCallback(() => {
+    gitStatusRefreshRequestedAtRef.current = Date.now();
+    refreshGitStatus();
+  }, [refreshGitStatus]);
   useWorkspaceMutationRefresh({
     enabled: gitStatusCwd !== null,
     mutationId: workspaceMutationId,
-    refresh: gitStatusQuery.refresh,
+    refresh: refreshGitStatusForMutation,
     resourceKey: `git-status:${activeThreadKey ?? ""}:${gitStatusCwd ?? ""}`,
   });
   const keybindings = useAtomValue(primaryServerKeybindingsAtom);
@@ -4831,7 +4838,10 @@ export default function ChatView(props: ChatViewProps) {
     const diffAction = eligibleCompletion
       ? resolveProactiveTurnDiffAction({
           checkpoint: completedCheckpoint,
-          gitStatus: gitStatusQuery.data,
+          gitStatus: gitStatusSinceRefresh(
+            { data: gitStatusQuery.data, dataUpdatedAt: gitStatusQuery.dataUpdatedAt },
+            gitStatusRefreshRequestedAtRef.current,
+          ),
         })
       : "ignore";
     proactivePanelObservationRef.current = {
@@ -4861,6 +4871,7 @@ export default function ChatView(props: ChatViewProps) {
     activeThreadRef,
     clientSettingsHydrated,
     gitStatusQuery.data,
+    gitStatusQuery.dataUpdatedAt,
     isServerThread,
     latestTurnSettled,
     linkedThreadPullRequest,

@@ -226,6 +226,30 @@ describe("rightPanelStore", () => {
     expect(selectActiveRightPanel(useRightPanelStore.getState().byThreadKey, refA)).toBe("diff");
   });
 
+  it.each([
+    { action: "open file", act: () => useRightPanelStore.getState().openFile(refA, "src/app.ts") },
+    { action: "open files", act: () => useRightPanelStore.getState().open(refA, "files") },
+    {
+      action: "open pull request",
+      act: () => useRightPanelStore.getState().openPullRequest(refA, linkedPullRequest),
+    },
+  ])("keeps the offered turn after dismissing, then $action, then reload", ({ act }) => {
+    const store = useRightPanelStore.getState();
+    expect(store.openProactive(refA, completedDiff, store.getUserActionRevision(refA))).toBe(true);
+    store.close(refA);
+    act();
+    const persisted = JSON.parse(
+      JSON.stringify({ byThreadKey: useRightPanelStore.getState().byThreadKey }),
+    );
+    useRightPanelStore.setState(migratePersistedRightPanelState(persisted));
+    const before = selectThreadRightPanelState(useRightPanelStore.getState().byThreadKey, refA);
+
+    expect(store.openProactive(refA, completedDiff, store.getUserActionRevision(refA))).toBe(false);
+    expect(selectThreadRightPanelState(useRightPanelStore.getState().byThreadKey, refA)).toBe(
+      before,
+    );
+  });
+
   it("does not retry a diff offer the user already declined", () => {
     const store = useRightPanelStore.getState();
     const revision = store.getUserActionRevision(refA);

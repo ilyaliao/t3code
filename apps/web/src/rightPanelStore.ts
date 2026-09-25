@@ -292,7 +292,12 @@ const updateThread = (
   updater: (current: ThreadRightPanelState) => ThreadRightPanelState,
 ): Record<string, ThreadRightPanelState> => {
   const current = byThreadKey[threadKey] ?? EMPTY_THREAD_STATE;
-  const next = updater(current);
+  const updated = updater(current);
+  // Many actions rebuild the thread state from scratch. Only `openProactive` replaces the offer.
+  const next =
+    updated.proactiveDiffTurnId === undefined && current.proactiveDiffTurnId !== undefined
+      ? { ...updated, proactiveDiffTurnId: current.proactiveDiffTurnId }
+      : updated;
   if (
     !next.isOpen &&
     next.activeSurfaceId === null &&
