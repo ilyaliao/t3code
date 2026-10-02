@@ -73,7 +73,7 @@ describe("resolveSidebarScope", () => {
 
     expect(scope.environment).toBe(items[0]);
     expect(scope.projectGroups).toEqual([shared]);
-    expect(scope.key).toBe("laptop:all");
+    expect(scope.key).not.toBe(resolve({}).key);
   });
 
   it("hands back the input group array and null axes when nothing is scoped, so memos keyed on them stay stable", () => {
@@ -132,10 +132,24 @@ describe("resolveSidebarScope", () => {
   });
 
   it("keys on effective values so a dropped stored key does not reset paging or selection", () => {
-    expect(resolve({ environmentScopeId: retired, projectScopeKey: "gone" }).key).toBe("all:all");
-    expect(resolve({ environmentScopeId: desk, projectScopeKey: shared.projectKey }).key).toBe(
-      `desk:${shared.projectKey}`,
+    const unscoped = resolve({}).key;
+    expect(resolve({ environmentScopeId: retired, projectScopeKey: "gone" }).key).toBe(unscoped);
+    expect(resolve({ environmentScopeId: desk, projectScopeKey: shared.projectKey }).key).not.toBe(
+      unscoped,
     );
+  });
+
+  it("never keys an environment whose id is a sentinel word the same as no scope", () => {
+    const all = EnvironmentId.make("all");
+    const scoped = resolveSidebarScope({
+      environmentScopeId: all,
+      projectScopeKey: null,
+      environmentItems: [...items, makeEnvironmentPresentation({ id: all })],
+      projectGroups: groups,
+      snapshotsReady: true,
+    });
+    expect(scoped.environment?.environmentId).toBe(all);
+    expect(scoped.key).not.toBe(resolve({}).key);
   });
 });
 

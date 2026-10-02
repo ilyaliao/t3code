@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vite-plus/test";
 
+import { ALL_ENVIRONMENTS_VALUE } from "../EnvironmentScopeRadioItems";
+
 import {
   environmentAxisValue,
   projectAxisValue,
@@ -22,8 +24,12 @@ describe("settings scope axes", () => {
       project: "app",
       machine: "first",
     });
-    expect(selectEnvironmentAxis({ project: "app", machine: "first" }, "all")).toEqual({
+    expect(
+      selectEnvironmentAxis({ project: "app", machine: "first" }, ALL_ENVIRONMENTS_VALUE),
+    ).toEqual({ project: "app" });
+    expect(selectEnvironmentAxis({ project: "app" }, "all")).toEqual({
       project: "app",
+      machine: "all",
     });
   });
 
@@ -40,7 +46,8 @@ describe("settings scope axes", () => {
 describe("environmentAxisValue", () => {
   it("shows the checkout's environment for a legacy checkout link", () => {
     expect(environmentAxisValue({ project: "p", checkout: "c" }, "laptop")).toBe("laptop");
-    expect(environmentAxisValue({ project: "p" }, null)).toBe("all");
+    expect(environmentAxisValue({ project: "p" }, null)).toBe(ALL_ENVIRONMENTS_VALUE);
+    expect(environmentAxisValue({ machine: "all" }, null)).not.toBe(ALL_ENVIRONMENTS_VALUE);
     expect(environmentAxisValue({ machine: "desk" }, "laptop")).toBe("desk");
   });
 });

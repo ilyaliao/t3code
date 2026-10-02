@@ -5,8 +5,12 @@ import { environmentScopeLabel, type EnvironmentPresentation } from "../state/en
 import { EnvironmentMachineIcon } from "./EnvironmentMachineIcon";
 import { MenuRadioItem, MenuRadioItemIndicator, MenuSeparator } from "./ui/menu";
 
-/** Radio value of the "All environments" row; every environment menu keys on it. */
-export const ALL_ENVIRONMENTS_VALUE = "all";
+/**
+ * Radio value of the "All environments" row; every environment menu keys on it.
+ * It is empty because `EnvironmentId` is non-empty. Ids arrive from remote
+ * servers, so any word could be one, but no environment can claim "".
+ */
+export const ALL_ENVIRONMENTS_VALUE = "";
 
 /**
  * The rows of an environment radio menu: "All environments" (unless the menu

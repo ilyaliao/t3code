@@ -54,7 +54,7 @@ export function resolveSidebarScope(input: {
     environment,
     projectGroups,
     projectGroup,
-    key: `${environment?.environmentId ?? "all"}:${projectGroup?.projectKey ?? "all"}`,
+    key: JSON.stringify([environment?.environmentId ?? null, projectGroup?.projectKey ?? null]),
     stale: {
       environment:
         input.environmentScopeId !== null && input.snapshotsReady && environment === null,
