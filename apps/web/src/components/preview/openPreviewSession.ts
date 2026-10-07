@@ -50,7 +50,7 @@ export async function openPreviewSession<E>(
       ...(input.url === undefined ? {} : { url: input.url }),
       viewport: input.viewport ?? browserDefaultOpenViewport(defaults),
       profileId: input.profileId ?? browserDefaultOpenProfileId(defaults),
-      ...(runtime === undefined ? {} : { runtime }),
+      ...(runtime === undefined ? {} : { runtime, colorScheme: defaults.appearance }),
     },
   });
   if (result._tag === "Failure") {

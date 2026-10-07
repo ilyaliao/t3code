@@ -70,7 +70,7 @@ export async function openUrlInPreview<E>(input: {
       // applied explicitly or file/link opens would ignore them.
       viewport: browserDefaultOpenViewport(defaults),
       profileId: browserDefaultOpenProfileId(defaults),
-      ...(runtime === undefined ? {} : { runtime }),
+      ...(runtime === undefined ? {} : { runtime, colorScheme: defaults.appearance }),
     },
   });
   return mapAtomCommandResult(result, (snapshot) => {
