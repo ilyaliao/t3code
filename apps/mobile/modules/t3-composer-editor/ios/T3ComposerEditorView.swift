@@ -839,6 +839,13 @@ public final class T3ComposerEditorView: ExpoView, UITextViewDelegate, UITextDro
   }
 
   private func applyControlledDocument(force: Bool = false) {
+    // Rebuilding the attributed string tears down an active IME composition.
+    // Skip while marked text exists; committing the composition sends a new
+    // value from JS, and that update rebuilds normally.
+    if textView.markedTextRange != nil {
+      updatePlaceholderVisibility()
+      return
+    }
     let currentSource = textView.serializedText()
     guard force || currentSource != value || !documentMatchesExpectedTokens() else {
       updatePlaceholderVisibility()
